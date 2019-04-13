@@ -29,11 +29,28 @@ enum planck_layers {
 enum planck_keycodes {
   QWERTY = SAFE_RANGE,
   BACKLIT,
-  EXT_PLV
+  EXT_PLV,
+  S_CLOSE,
+  S_CLO_SH,
+  S_IMPER,
 };
 
 #define NUMS MO(_NUMS)
 #define FUNCT MO(_FUNCT)
+
+
+#define CLOSE_ENCOUNTERS_5_NOTE_LONG  \
+	B__NOTE(_D5),                \
+	B__NOTE(_E5),                \
+	B__NOTE(_C5),                \
+	B__NOTE(_C4),                \
+	B__NOTE(_G4),
+
+#ifdef AUDIO_ENABLE
+  float close_encounters_long[][2]     = SONG(CLOSE_ENCOUNTERS_5_NOTE_LONG);
+  float close_encounters[][2]     = SONG(CLOSE_ENCOUNTERS_5_NOTE);
+  float imperial[][2]     = SONG(IMPERIAL_MARCH );
+#endif
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -52,7 +69,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_ESC,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
     FUNCT,   KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
     KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-    KC_LCTL, KC_LGUI, KC_LALT, KC_NO,   KC_SPC,  NUMS,    KC_ENT,  KC_SPC,  KC_NO,   KC_RALT, KC_RGUI, KC_RCTL
+    KC_LCTL, KC_LGUI, KC_LALT, KC_SPC,  NUMS,    KC_TAB,  KC_ENT,  KC_SPC,  KC_NO,   KC_RALT, KC_RGUI, KC_RCTL
 ),
 
 /* Nums
@@ -70,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR,    KC_LPRN, KC_RPRN, KC_EQL,
     _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,       KC_8,       KC_9,    KC_0,    KC_MINS,
     _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,      KC_F8,      KC_F9,   KC_F10,  _______,
-    _______, KC_F11,  KC_F12,  KC_F13,  KC_F14,  _______, _______, _______,    KC_MINS,    KC_EQL,  KC_UNDS, KC_PLUS
+    _______, KC_F21,  KC_F22,  KC_F23,  KC_F24,  _______, _______, _______,    KC_MINS,    KC_EQL,  KC_UNDS, KC_PLUS
 ),
 
 /* Fuction
@@ -85,10 +102,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_FUNCT] = LAYOUT_planck_grid(
-    KC_CAPS, KC_GRV,    KC_UP,   KC_TAB,   KC_DELETE, _______, _______, _______, _______, KC_LBRC, KC_RBRC, KC_BSLASH,
-    KC_DEL,  KC_LEFT,   KC_DOWN, KC_RGHT,  KC_BSPC,   _______, _______, _______, KC_MUTE, KC_VOLU, KC_VOLD, KC_ENT,
-    _______, _______,   _______,  _______, _______,   _______, _______, _______, _______, _______, _______, KC_RSFT,
-    _______, _______,   _______, KC_LSFT,  _______,   _______, _______, _______, _______, _______, _______, _______
+    KC_CAPS, KC_GRV,    KC_UP,   KC_TAB,   KC_BSPC,   _______, S_CLOSE, S_CLO_SH, _______, KC_LBRC, KC_RBRC, KC_BSLASH,
+    KC_DEL,  KC_LEFT,   KC_DOWN, KC_RGHT,  KC_DELETE, _______, S_IMPER, _______,  KC_MUTE, KC_VOLD, KC_VOLU, KC_ENT,
+    _______, _______,   _______,  _______, _______,   _______, _______, _______,  _______, _______, _______, KC_RSFT,
+    _______, _______,   _______, KC_LSFT,  _______,   _______, _______, _______,  _______, _______, _______, _______
 ),
 
 /* Adjust (nums + func)
@@ -118,6 +135,30 @@ uint32_t layer_state_set_user(uint32_t state) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
+    case S_CLOSE:
+      if (!record->event.pressed) {
+        #ifdef AUDIO_ENABLE
+          PLAY_SONG(close_encounters_long);
+        #endif //AUDIO_ENABLE
+      }
+      return false;
+      break;
+    case S_CLO_SH:
+      if (!record->event.pressed) {
+        #ifdef AUDIO_ENABLE
+          PLAY_SONG(close_encounters);
+        #endif //AUDIO_ENABLE
+      }
+      return false;
+      break;
+    case S_IMPER:
+      if (!record->event.pressed) {
+        #ifdef AUDIO_ENABLE
+          PLAY_SONG(imperial);
+        #endif //AUDIO_ENABLE
+      }
+      return false;
+      break;
     case QWERTY:
       if (record->event.pressed) {
         print("mode just switched to qwerty and this is a huge string\n");
